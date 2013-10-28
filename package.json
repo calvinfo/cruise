@@ -1,0 +1,20 @@
+{
+  "name": "cruise",
+  "version": "0.0.1",
+  "description": "A node implementation of raft",
+  "keywords": [],
+  "author": "Calvin French-Owen <calvin@calv.info>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/calvinfo/cruise.git"
+  },
+  "dependencies": {
+    "cruise-states": "0.0.1",
+    "cruise-node": "0.0.1"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  },
+  "main": "index"
+}
