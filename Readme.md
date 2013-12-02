@@ -1,9 +1,9 @@
 
 # cruise
 
-  A node implementation of raft
+  A node implementation of raft [WIP!]
 
-## License 
+## License
 
 (The MIT License)
 
