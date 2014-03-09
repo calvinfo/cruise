@@ -1,40 +1,51 @@
-var states = require('cruise-states');
 var Node = require('cruise-node');
 
+var ports = [4005, 4006, 4007, 4008, 4009];
+var nodes = ports.map(function(listen){
+  var node = new Node()
+    .state('follower');
 
-var node1 = new Node()
-  .state('follower')
-  .addPeer('127.0.0.1', 4006)
-  .addPeer('127.0.0.1', 4007);
+  ports.forEach(function(port){
+    if (port !== listen) node.addPeer('127.0.0.1', port)
+  });
+  node.listen(listen);
+  return node;
+});
 
-var node2 = new Node()
-  .state('follower')
-  .addPeer('127.0.0.1', 4005)
-  .addPeer('127.0.0.1', 4007);
-
-var node3 = new Node()
-  .state('follower')
-  .addPeer('127.0.0.1', 4005)
-  .addPeer('127.0.0.1', 4006);
-
-
-node1.listen(4005);
-node2.listen(4006);
-node3.listen(4007);
-
+var counter = 1;
 
 
 setInterval(function () {
-  node1.stop();
-  setTimeout(function () { node1.listen(4005) }, 800);
-}, 3500);
+  var leader = getLeader();
+  if (!leader) return;
+  leader.state().record({ test: counter }, function (err, res){
+    if (err) console.error(err);
+    if (res) console.log('Recorded', counter++);
+  });
+}, 700);
+
 
 setInterval(function () {
-  node2.stop();
-  setTimeout(function () { node2.listen(4006) }, 800);
-}, 4100);
+  console.log('------');
+  nodes.forEach(function (node) {
+    console.log(node.log().entries().length, node.state().name);
+  });
+  console.log('------');
+}, 3000);
+
 
 setInterval(function () {
-  node3.stop();
-  setTimeout(function () { node3.listen(4007) }, 800);
-}, 4500);
+  var leader = getLeader();
+  if (!leader) return;
+  leader.stop(function () {
+    setTimeout(function () { leader.listen(leader.port()) }, 1000);
+  });
+}, 4000);
+
+
+function getLeader () {
+  var leaders = nodes.filter(function (node) {
+    return node.state().name === 'leader';
+  });
+  return leaders[0];
+}
