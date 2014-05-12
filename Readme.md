@@ -1,9 +1,9 @@
 
 # cruise
 
-  A node implementation of the raft consensus algorithm. Raft operates in a similar manner to Paxos, but with the goal of being simpler to implement and understand.
+  A node implementation of the Raft consensus algorithm. Raft operates in a similar manner to Paxos, but with the goal of being simpler to implement and understand.
 
-  This is still very much a work in progress, and in the 'science ex
+  This is still very much a work in progress, so until I have more tests, use at your own risk.
 
 ## Quickstart
 
@@ -25,9 +25,9 @@ function addPeers(node){
   });
 }
 
-node.record('some value', function(err){
+node.record('value', function(err){
   if (err) throw err;
-  console.log('yay, some value recorded!');
+  console.log('value recorded!');
 });
 ```
 
