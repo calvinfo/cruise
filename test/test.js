@@ -1,9 +1,8 @@
-var Node = require('cruise-node');
+var Node = require('../');
 
 var ports = [4005, 4006, 4007, 4008, 4009];
 var nodes = ports.map(function(listen){
   var node = new Node()
-    .state('follower')
     .port(listen);
 
   ports.forEach(function(port){

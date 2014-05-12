@@ -1,7 +1,58 @@
 
 # cruise
 
-  A node implementation of raft [WIP!]
+  A node implementation of the raft consensus algorithm. Raft operates in a similar manner to Paxos, but with the goal of being simpler to implement and understand.
+
+  This is still very much a work in progress, and in the 'science ex
+
+## Quickstart
+
+  The following shows how to boot up a three-node cruise cluster:
+
+```js
+var ports = [4005, 4006, 4007];
+var node;
+
+ports.forEach(function(port){
+  node = new Node()
+    .listen(port);
+  addPeers(node);
+});
+
+function addPeers(node){
+  ports.forEach(function(port){
+    node.addPeer('127.0.0.1', port);
+  });
+}
+
+node.record('some value', function(err){
+  if (err) throw err;
+  console.log('yay, some value recorded!');
+});
+```
+
+## Client API
+
+### new Node()
+
+  Creates a new cruise node
+
+### .state(state)
+
+  Sets the node to use `state` as it's current state
+
+### .listen([host], [port], fn)
+
+  Sets the node to listen on the `host` and `port`
+
+### .addPeer(host, port)
+
+  Adds a peer by host and port. Will de-dupe automatically, but not between different hosts/ips.
+
+### .record(value, fn)
+
+  Records a value to the state machine. The callback is run once the operation has timed out, errored, or succeeded.
+
 
 ## License
 

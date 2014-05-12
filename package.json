@@ -9,13 +9,11 @@
     "url": "git://github.com/calvinfo/cruise.git"
   },
   "dependencies": {
-    "cruise-states": "0.0.1",
-    "cruise-node": "0.0.1",
     "hat": "0.0.3"
   },
   "devDependencies": {
     "mocha": "*",
     "should": "*"
   },
-  "main": "index"
+  "main": "lib/index"
 }
