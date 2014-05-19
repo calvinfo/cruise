@@ -1,9 +1,11 @@
 
 # cruise
 
-  A node implementation of the Raft consensus algorithm. Raft operates in a similar manner to Paxos, but with the goal of being simpler to implement and understand.
+  A node implementation of the [Raft][paper] consensus algorithm. Raft operates in a similar manner to Paxos, but with the goal of being simpler to implement and understand.
 
   This is still very much a work in progress, so until I have more tests, use at your own risk.
+
+[paper]: https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf
 
 ## Quickstart
 
