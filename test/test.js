@@ -1,49 +1,79 @@
 var Node = require('../');
 
+var counter = 1;
+var commited = {};
+
+/**
+ * Setup our servers
+ */
+
 var ports = [4005, 4006, 4007, 4008, 4009];
 var nodes = ports.map(function(listen){
-  var node = new Node()
-    .port(listen);
-
+  var node = new Node('127.0.0.1:' + listen);
+  commited[listen] = 0;
   ports.forEach(function(port){
-    if (port !== listen) node.addPeer('127.0.0.1', port)
+    if (port !== listen) node.addPeer('127.0.0.1:' + port)
   });
   node.connect();
+  node.on('data', function(){ commited[listen]++; });
   return node;
 });
 
-var counter = 1;
+/**
+ * Create our intervals
+ */
 
+setInterval(record, 100);
+setInterval(status, 3000);
+setInterval(reboot, 10000);
 
-setInterval(function () {
+/**
+ * Record an item to the state machine.
+ */
+
+function record(){
   var leader = getLeader();
   if (!leader) return;
-  leader.state().record({ test: counter }, function (err, res){
+  leader.record({ test: counter }, function (err, res){
     if (err) console.error(err);
-    if (res) console.log('Recorded', counter++);
+    if (res) console.log('  Recorded', counter++);
   });
-}, 100);
+}
 
+/**
+ * Log the current state of the cluster.
+ */
 
-setInterval(function () {
-  console.log('------');
-  nodes.forEach(function (node) {
-    console.log(node.log().entries().length, node.state().name, node.id());
+function status(){
+  console.log();
+  nodes.forEach(function(node){
+    console.log('  %s:%s - entries: %d',
+      node.addr(),
+      node.state().name,
+      commited[node.port()]
+    );
   });
-  console.log('------');
-}, 3000);
+  console.log();
+}
 
+/**
+ * Reboot the leader
+ */
 
-setInterval(function () {
+function reboot(){
   var leader = getLeader();
   if (!leader) return;
-  leader.stop(function () {
-    setTimeout(function () { leader.connect(); }, 1000);
+  console.log(' Killing the leader: %s', leader.addr());
+  leader.stop(function(){
+    setTimeout(function(){ leader.connect(); }, 1000);
   });
-}, 4000);
+};
 
+/**
+ * Return the leader
+ */
 
-function getLeader () {
+function getLeader(){
   var leaders = nodes.filter(function (node) {
     return node.state().name === 'leader';
   });

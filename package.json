@@ -20,7 +20,7 @@
     "bind-all": "0.0.2",
     "axon": "^2.0.0",
     "axon-rpc": "0.0.3",
-    "debug": "^0.8.1"
+    "debug": "^0.7.4"
   },
   "devDependencies": {
     "mocha": "*",
