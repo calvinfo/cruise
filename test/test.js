@@ -15,7 +15,9 @@ var nodes = ports.map(function(listen){
     if (port !== listen) node.addPeer('127.0.0.1:' + port)
   });
   node.connect();
-  node.on('data', function(){ commited[listen]++; });
+  node.on('data', function(){
+    var count = commited[listen]++;
+  });
   return node;
 });
 
@@ -25,7 +27,7 @@ var nodes = ports.map(function(listen){
 
 setInterval(record, 100);
 setInterval(status, 3000);
-setInterval(reboot, 10000);
+setInterval(reboot, 4000);
 
 /**
  * Record an item to the state machine.
@@ -34,9 +36,9 @@ setInterval(reboot, 10000);
 function record(){
   var leader = getLeader();
   if (!leader) return;
-  leader.record({ test: counter }, function (err, res){
-    if (err) console.error(err);
-    if (res) console.log('  Recorded', counter++);
+  leader.record({ test: counter }, function (err){
+    if (err) return console.error(err);
+    console.log('  Recorded', counter++);
   });
 }
 
@@ -46,6 +48,7 @@ function record(){
 
 function status(){
   console.log();
+
   nodes.forEach(function(node){
     console.log('  %s:%s - entries: %d',
       node.addr(),
@@ -63,7 +66,9 @@ function status(){
 function reboot(){
   var leader = getLeader();
   if (!leader) return;
-  console.log(' Killing the leader: %s', leader.addr());
+  console.log();
+  console.log('--- Killing the leader: %s ---', leader.addr());
+  console.log();
   leader.stop(function(){
     setTimeout(function(){ leader.connect(); }, 1000);
   });
