@@ -1,11 +1,11 @@
 
 # cruise
 
-  Cruise is a node implementation of the [Raft][site] consensus algorithm. Raft operates in a similar manner to Paxos, but with the goal of being simpler to implement and understand.
+  Cruise is a node implementation of the [Raft][site] consensus algorithm. It's primary use is to coordinate groups of machines within a distributed system. Cruise ensures that nodes will hold a consistent view of the cluster's replicated log.
 
-  For a more complete description, it's worth checking out the original [paper][paper] by Diego Ongaro and Jon Ousterhout.
+  Raft operates in a similar manner to Paxos, but with the goal of being simpler to implement and understand. For a more complete description, it's worth checking out the original [paper][paper] by Diego Ongaro and Jon Ousterhout.
 
-  There's also a reference implementation of a simple key value store at [`calvinfo/cruise-db`][cruise-db]
+  There's also a reference implementation of a simple key value store at [`calvinfo/cruise-db`][cruise-db].
 
 
 [site]: http://raftconsensus.github.io
@@ -91,10 +91,16 @@ cruise.addPeer('127.0.0.1:4002');
 
 ## A simple K/V store
 
-  The main use case for consensus algorithms is for backing a distributed datastore. To give you an idea of how cruise would be used in your application, here's a simple in-memory store:
+  As a bit more concrete example, let's take a look at implementing a toy key/value store on top of cruise. The following code demonstrates how to add cruise nodes to your application.
 
 ```js
 var Cruise = require('cruise');
+
+/**
+ * Module exports
+ */
+
+module.exports = Db;
 
 /**
  * Create a new db
@@ -118,7 +124,7 @@ function Db(addr){
 
 Db.prototype.peer = function(addr){
   this.cruise.addPeer(addr);
-}
+};
 
 /**
  * Returns a value from the store
@@ -156,12 +162,12 @@ Db.prototype.put = function(key, val, fn){
 
 Db.prototype.leader = function(){
   return this.cruise.isLeader();
-}
+};
 ```
 
   Then we put it all together:
 
-```
+```js
 var Db = require('./db');
 
 var addrs = [
