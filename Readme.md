@@ -3,7 +3,7 @@
 
   Cruise is a node implementation of the [Raft][site] consensus algorithm. It's primary use is to coordinate groups of machines within a distributed system. Cruise ensures that nodes will hold a consistent view of the cluster's replicated log.
 
-  Raft operates in a similar manner to Paxos, but with the goal of being simpler to implement and understand. For a more complete description, it's worth checking out the original [paper][paper] by Diego Ongaro and Jon Ousterhout.
+  Raft is similar to Paxos, but with the goal of being simpler to implement and understand. For a more complete description, it's worth checking out the original [paper][paper] by Diego Ongaro and Jon Ousterhout.
 
   There's also a reference implementation of a simple key value store at [`calvinfo/cruise-db`][cruise-db].
 
@@ -33,19 +33,16 @@ nodes.forEach(addPeers);
 
 function addPeers(node){
   nodes.forEach(function(peer){
-    node.addPeer(peer.addr());
+    node.peer(peer.addr());
   });
 }
 
 /**
- * Then begin recording values to the leader
+ * Then begin recording values to the cluster
  */
 
-var leader = nodes.filter(function(node){
-  return node.isLeader();
-})[0];
-
-leader.record('value', function(err){
+var node = nodes[0];
+node.record('value', function(err){
   if (err) throw err;
   console.log('value recorded!');
 });
@@ -76,7 +73,7 @@ cruise.state().name; // 'leader'
 
   Sets the node to listen to accept other peer connections.
 
-### .addPeer(addr)
+### .peer(addr)
 
   Adds a peer by it's connection string. This will de-dupe automatically and not add the node as it's own peer, but will not differentiate between different hosts/ips.
 
@@ -123,7 +120,7 @@ function Db(addr){
  */
 
 Db.prototype.peer = function(addr){
-  this.cruise.addPeer(addr);
+  this.cruise.peer(addr);
 };
 
 /**
@@ -148,20 +145,8 @@ Db.prototype.get = function(key){
  */
 
 Db.prototype.put = function(key, val, fn){
-  if (!this.leader()) {
-    return fn(new Error('must send put commands to the leader'));
-  }
   var data = { key: key, val: val };
   this.cruise.record(data, fn);
-};
-
-/**
- * Return whether the current DB is the leader and can
- * @return {Boolean}
- */
-
-Db.prototype.leader = function(){
-  return this.cruise.isLeader();
 };
 ```
 
@@ -186,8 +171,8 @@ var dbs = addrs.map(function(addr){
  * Find the leader and put a value
  */
 
-var leader = dbs.filter(function(db){ return db.isLeader(); })[0];
-leader.put('foo', 'bar', function(err){
+var db = dbs[0];
+db.put('foo', 'bar', function(err){
 
   /**
    * A majority should reflect the updated values
