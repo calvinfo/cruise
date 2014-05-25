@@ -34,7 +34,7 @@ setInterval(reboot, 4000);
  */
 
 function record(){
-  var leader = getLeader();
+  var leader = nodes[Math.floor(Math.random() * nodes.length)];
   if (!leader) return;
   leader.record({ test: counter }, function (err){
     if (err) return console.error(err);
