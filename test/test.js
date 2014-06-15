@@ -12,7 +12,7 @@ var nodes = ports.map(function(listen){
   var node = new Node('127.0.0.1:' + listen);
   commited[listen] = 0;
   ports.forEach(function(port){
-    node.addPeer('127.0.0.1:' + port);
+    node.peer('127.0.0.1:' + port);
   });
   node.connect();
   node.on('data', function(){
@@ -52,7 +52,7 @@ function status(){
   nodes.forEach(function(node){
     console.log('  %s:%s - entries: %d',
       node.addr(),
-      node.state().name,
+      node.state(),
       commited[node.port()]
     );
   });
@@ -79,8 +79,8 @@ function reboot(){
  */
 
 function getLeader(){
-  var leaders = nodes.filter(function (node) {
-    return node.state().name === 'leader';
+  var leaders = nodes.filter(function (node){
+    return node.isLeader();
   });
   return leaders[0];
 }
